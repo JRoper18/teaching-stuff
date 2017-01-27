@@ -1,0 +1,20 @@
+{
+  "name": "mathsite",
+  "authors": [
+    "UnusualArnen <jack@skroper.com>"
+  ],
+  "description": "",
+  "main": "",
+  "license": "MIT",
+  "homepage": "",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "mathbox": "^0.0.5"
+  }
+}
