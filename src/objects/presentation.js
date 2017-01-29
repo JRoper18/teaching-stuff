@@ -7,15 +7,18 @@ class Presentation{
     startPresentation();
   }
   startPresentation(){
-    this.element.innerHTML()
+    this.element.innerHTML = this.getSlide();
   }
   getSlide(){
-    return this.slides[this.index];
+    return this.slides[this.index] ;
   }
   next(){
     this.slides[index].transition();
     this.index++;
-    return this.getSlide();
+    this.element.innerHTML = this.getSlide();
+  }
+  previous(){
+
   }
 
 }

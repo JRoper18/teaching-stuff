@@ -1,16 +1,14 @@
 {
-  "name": "mathsite",
-  "authors": [
-    "UnusualArnen <jack@skroper.com>"
-  ],
+  "name": "teaching-stuff",
   "description": "",
   "main": "",
   "license": "MIT",
-  "homepage": "",
+  "homepage": "https://github.com/JRoper18/teaching-stuff",
   "ignore": [
     "**/.*",
     "node_modules",
     "bower_components",
+    "./build/bower_components",
     "test",
     "tests"
   ],
