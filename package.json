@@ -14,7 +14,8 @@
     "resolve-url": "latest",
     "sat": "^0.5.0",
     "url-loader": "latest",
-    "webpack": "latest"
+    "webpack": "latest",
+    "xml2js": "^0.4.17"
   },
   "devDependencies": {
     "babel-core": "^6.22.1",

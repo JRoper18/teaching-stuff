@@ -1,4 +1,4 @@
-import Slide from './objects/slide.js'
+import MathboxEditor from './objects/MathboxEditor.js'
 var mathbox = mathBox({
     width: 10,
     element: document.getElementById("slide-display")
@@ -42,21 +42,10 @@ view
     width: 50,
     color: '#64d2b6'
   })
-document.addEventListener( 'mousedown', onDocumentMouseDown, false );
-function onDocumentMouseDown( e ) {
-    var mouse = new THREE.Vector2();
-    mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
-    mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1; 
-    var raycaster = new THREE.Raycaster();
-    e.preventDefault();
-    var mouseVector = new THREE.Vector3();
-    raycaster.setFromCamera( mouse, three.camera );
-    // calculate objects intersecting the picking ray
-    var intersects = raycaster.intersectObject(THREE.scene.children[0].children[0]);
-    console.log(intersects);
-    for( var i = 0; i < intersects.length; i++ ) {
-        var intersection = intersects[ i ],
-        obj = intersection.object;
-        console.log("Intersected object", obj);
-    }
-}
+//Setup the tree view.
+
+
+let test = new MathboxEditor(mathbox);
+test.addElement("interval", {expr: function(emit, x, i, t){emit(x, 1)}, width: 30, channels: 2})
+test.addElement("line", {width: 30, color: 'white'})
+console.log(test.searchJSON());

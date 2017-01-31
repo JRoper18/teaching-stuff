@@ -91,6 +91,7 @@
 	    width: 50,
 	    color: '#64d2b6'
 	});
+	console.log(three);
 	document.addEventListener('mousedown', onDocumentMouseDown, false);
 	function onDocumentMouseDown(e) {
 	    var mouse = new THREE.Vector2();
@@ -101,8 +102,8 @@
 	    var mouseVector = new THREE.Vector3();
 	    raycaster.setFromCamera(mouse, three.camera);
 	    // calculate objects intersecting the picking ray
-	    var intersects = raycaster.intersectObjects(three.scene.children);
-	    console.log(intersects.length);
+	    var intersects = raycaster.intersectObjects(scene.children, true);
+	    console.log(intersects);
 	    for (var i = 0; i < intersects.length; i++) {
 	        var intersection = intersects[i],
 	            obj = intersection.object;
