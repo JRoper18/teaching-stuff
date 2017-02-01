@@ -1,3 +1,4 @@
+import Command from './command.js'
 export default class MathboxEditor{
 	constructor(mathbox, element){
 		this.mathbox = mathbox;
@@ -6,39 +7,81 @@ export default class MathboxEditor{
 	}
 	addElement(type, data){
 		this.mathbox[type](data);
+		this.refreshMathbox();
 	}
 	refreshMathbox(){
 		//First, we generate a list of addElement commands from our json.
 		let commands = []
 		//You want to add the elements in order. Do that with their IDs	
+		let outOfIds = false;
+		let index = 1;
+		while(!outOfIds){
+			const objectWithId = this.searchJSON(this.json.root, index);
+			if(objectWithId === null){ //Reahced the last ID
+				outOfIds = true;
+			}
+			else{
+				const type = objectWithId.name;
+				const data = objectWithId.obj["@attributes"];
+				commands.push(new Command(type, data));
+				index++;				
+			}
+		}	
+		//Empty out the mathbox. 
+		this.mathbox.remove("*");
+		//Now for each command, apply it back onto the mathbox. 
+		for(let index = 1; index<commands.length; index++){ //The first is root, skip it. 
+			commands[index].execute(this.mathbox);
+		}
 		
 	}
-	searchJSON(json = this.json.root, id = 0){ //Searches a json element for something with id: id
+	searchJSON(json = this.json.root, id = 1){ //Searches a json element for something with id: id
 		//Check this element
-		if(json["@attributes"] === undefined){
+		if(json === null){
+			return null;
+		}
+		if(json["@attributes"] === undefined){ 
 			return null;
 		}
 		if(json["@attributes"].id == id){
-			return json;
+			if(id == 1){
+				return {
+					"name" : "root",
+					"obj": json
+				}
+			}
+			return {
+				"name" : null,
+				"obj": json
+			}
 		}
 		//Check children
 		for (let child in json) {
-			if (json.hasOwnProperty(child) && (child != "#text" || child != "@attributes")) {
-				if(json[child].constructor === Array ){ //This is for when we have multiple of the same type of object when parsing xml, and it's bundled
-					for(let subChild in json[child]){
-						if (json[child].hasOwnProperty(subChild) && (subChild != "#text" || subChild != "@attributes")) {
-							const possible = this.searchJSON(json[child][subChild], id);
-							if(possible != null){
-								return possible;
+			if (json.hasOwnProperty(child) && (child != "#text" && child != "@attributes")) {			
+				if(json[child].constructor == Array){
+					//Go through children of array, too
+					for(let index in json[child]){
+						let current = json[child][index];
+						const possible = this.searchJSON(current, id);
+						if(possible != null){
+							return {
+								"name": child,
+								"obj" : possible.obj
 							}
 						}
 					}
 				}
-				else{
+				else{		
 					const possible = this.searchJSON(json[child], id);
 					if(possible != null){
-						return possible;
-					}
+						if(possible.name != null){
+							return possible;
+						}
+						return {
+							"name": child,
+							"obj" : possible.obj
+						}	
+					}				
 				}
 			}
 		}

@@ -46,9 +46,9 @@
 
 	"use strict";
 
-	var _slide = __webpack_require__(1);
+	var _MathboxEditor = __webpack_require__(1);
 
-	var _slide2 = _interopRequireDefault(_slide);
+	var _MathboxEditor2 = _interopRequireDefault(_MathboxEditor);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -91,69 +91,221 @@
 	    width: 50,
 	    color: '#64d2b6'
 	});
-	console.log(three);
-	document.addEventListener('mousedown', onDocumentMouseDown, false);
-	function onDocumentMouseDown(e) {
-	    var mouse = new THREE.Vector2();
-	    mouse.x = event.clientX / window.innerWidth * 2 - 1;
-	    mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
-	    var raycaster = new THREE.Raycaster();
-	    e.preventDefault();
-	    var mouseVector = new THREE.Vector3();
-	    raycaster.setFromCamera(mouse, three.camera);
-	    // calculate objects intersecting the picking ray
-	    var intersects = raycaster.intersectObjects(scene.children, true);
-	    console.log(intersects);
-	    for (var i = 0; i < intersects.length; i++) {
-	        var intersection = intersects[i],
-	            obj = intersection.object;
-	        console.log("Intersected object", obj);
-	    }
-	}
+	//Setup the tree view.
+
+
+	var test = new _MathboxEditor2.default(mathbox);
+	test.addElement("interval", { expr: function expr(emit, x, i, t) {
+	        emit(x, 1);
+	    }, width: 30, channels: 2 });
+	test.addElement("line", { width: 30, color: 'white' });
+	test.refreshMathbox();
 
 /***/ },
 /* 1 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	Object.defineProperty(exports, "__esModule", {
+		value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _command = __webpack_require__(2);
+
+	var _command2 = _interopRequireDefault(_command);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	var MathboxEditor = function () {
+		function MathboxEditor(mathbox, element) {
+			_classCallCheck(this, MathboxEditor);
+
+			this.mathbox = mathbox;
+			this.element = element;
+			this.json = this.getJSON();
+		}
+
+		_createClass(MathboxEditor, [{
+			key: "addElement",
+			value: function addElement(type, data) {
+				this.mathbox[type](data);
+			}
+		}, {
+			key: "refreshMathbox",
+			value: function refreshMathbox() {
+				//First, we generate a list of addElement commands from our json.
+				var commands = [];
+				//You want to add the elements in order. Do that with their IDs	
+				var outOfIds = false;
+				var index = 1;
+				while (!outOfIds) {
+					var objectWithId = this.searchJSON(this.json.root, index);
+					alert(objectWithId);
+					if (objectWithId === null) {
+						//Reahced the last ID
+						outOfIds = true;
+					}
+					var type = objectWithId.constructor;
+					var data = objectWithId["@attributes"];
+					commands.push(new _command2.default(type, data));
+					index++;
+				}
+				console.log(commands);
+			}
+		}, {
+			key: "searchJSON",
+			value: function searchJSON() {
+				var json = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : this.json.root;
+				var id = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 1;
+				//Searches a json element for something with id: id
+				//Check this element
+				if (json["@attributes"] === undefined) {
+					return null;
+				}
+				if (json["@attributes"].id == id) {
+					return json;
+				}
+				//Check children
+				for (var child in json) {
+					if (json.hasOwnProperty(child) && (child != "#text" || child != "@attributes")) {
+						if (json[child].constructor === Array) {
+							//This is for when we have multiple of the same type of object when parsing xml, and it's bundled
+							for (var subChild in json[child]) {
+								if (json[child].hasOwnProperty(subChild) && (subChild != "#text" || subChild != "@attributes")) {
+									var possible = this.searchJSON(json[child][subChild], id);
+									if (possible != null) {
+										return possible;
+									}
+								}
+							}
+						} else {
+							var _possible = this.searchJSON(json[child], id);
+							if (_possible != null) {
+								return _possible;
+							}
+						}
+					}
+				}
+				return null;
+			}
+		}, {
+			key: "getJSON",
+			value: function getJSON() {
+				var xml = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : this.mathbox.toMarkup();
+
+				var stringToParse = xml;
+				stringToParse = stringToParse.replace(/{/g, '"');
+				stringToParse = stringToParse.replace(/}/g, '"');
+				//Now go through and fix any function brackets that were replaced with ""
+				var matchPositions = [];
+				var regex = /function/g;
+				var match = regex.exec(stringToParse);
+				while (match != null) {
+					matchPositions.push(match.index);
+					match = regex.exec(stringToParse);
+				}
+				var unFunctioned = stringToParse;
+				for (var index in matchPositions) {
+					//Replace the first " with a {
+					var temp = unFunctioned.substr(matchPositions[index], stringToParse.length);
+					var badQuoteIndex = matchPositions[index] + temp.indexOf('"');
+					stringToParse = stringToParse.substr(0, badQuoteIndex) + "{" + stringToParse.substr(badQuoteIndex + 1, stringToParse.length);
+					//Replace the next " with a } : assume we have no strings in our function
+					temp = unFunctioned.substr(badQuoteIndex + 1, unFunctioned.length);
+					badQuoteIndex = badQuoteIndex + temp.indexOf('"') + 1;
+					stringToParse = stringToParse.substr(0, badQuoteIndex) + "}" + stringToParse.substr(badQuoteIndex + 1, stringToParse.length);
+				}
+				//Brackets are fixed! 
+				var parser = new DOMParser();
+				var xmlDoc = parser.parseFromString(stringToParse, "text/xml");
+				return this.xmlToJson(xmlDoc);
+			}
+		}, {
+			key: "xmlToJson",
+			value: function xmlToJson(xml) {
+
+				// Create the return object
+				var obj = {};
+
+				if (xml.nodeType == 1) {
+					// element
+					// do attributes
+					if (xml.attributes.length > 0) {
+						obj["@attributes"] = {};
+						for (var j = 0; j < xml.attributes.length; j++) {
+							var attribute = xml.attributes.item(j);
+							obj["@attributes"][attribute.nodeName] = attribute.nodeValue;
+						}
+					}
+				} else if (xml.nodeType == 3) {
+					// text
+					obj = xml.nodeValue;
+				}
+
+				// do children
+				if (xml.hasChildNodes()) {
+					for (var i = 0; i < xml.childNodes.length; i++) {
+						var item = xml.childNodes.item(i);
+						var nodeName = item.nodeName;
+						if (typeof obj[nodeName] == "undefined") {
+							obj[nodeName] = this.xmlToJson(item);
+						} else {
+							if (typeof obj[nodeName].push == "undefined") {
+								var old = obj[nodeName];
+								obj[nodeName] = [];
+								obj[nodeName].push(old);
+							}
+							obj[nodeName].push(this.xmlToJson(item));
+						}
+					}
+				}
+				return obj;
+			}
+		}]);
+
+		return MathboxEditor;
+	}();
+
+	exports.default = MathboxEditor;
+
+/***/ },
+/* 2 */
 /***/ function(module, exports) {
 
 	"use strict";
 
 	Object.defineProperty(exports, "__esModule", {
-	  value: true
+		value: true
 	});
 
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-	var Slide = function () {
-	  function Slide(onPlay, onTransition) {
-	    _classCallCheck(this, Slide);
+	var Command = function () {
+		function Command(type, parameters) {
+			_classCallCheck(this, Command);
 
-	    //Where onPlay and onTransition are arrays of commands.
-	    this.play = onPlay;
-	    this.transition = onTransition;
-	  }
+			this.type = type;
+			this.parameters = parameters;
+		}
 
-	  _createClass(Slide, [{
-	    key: "play",
-	    value: function play(mathbox) {
-	      for (command in this.play) {
-	        command.execute(mathbox);
-	      }
-	    }
-	  }, {
-	    key: "transition",
-	    value: function transition(mathbox) {
-	      for (command in this.transition) {
-	        command.execute(mathbox);
-	      }
-	    }
-	  }]);
+		_createClass(Command, [{
+			key: "execute",
+			value: function execute(mathbox) {
+				mathbox[this.type](this.parameters);
+			}
+		}]);
 
-	  return Slide;
+		return Command;
 	}();
 
-	exports.default = Slide;
+	exports.default = Command;
 
 /***/ }
 /******/ ]);

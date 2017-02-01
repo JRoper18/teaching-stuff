@@ -21,7 +21,7 @@ let view = mathbox.cartesian({
     ],
     scale: [2, 1],
 });
-view
+mathbox
     .axis({
         axis: 1,
         width: 10,
@@ -44,8 +44,9 @@ view
   })
 //Setup the tree view.
 
-
+/*
 let test = new MathboxEditor(mathbox);
 test.addElement("interval", {expr: function(emit, x, i, t){emit(x, 1)}, width: 30, channels: 2})
 test.addElement("line", {width: 30, color: 'white'})
-console.log(test.searchJSON());
+test.refreshMathbox();
+*/

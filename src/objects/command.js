@@ -1,4 +1,4 @@
-class Command{
+export default class Command{
 	constructor(type, parameters){
 		this.type = type;
 		this.parameters = parameters;
