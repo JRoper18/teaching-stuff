@@ -15,23 +15,32 @@ export default class MathboxEditor{
 		//You want to add the elements in order. Do that with their IDs	
 		let outOfIds = false;
 		let index = 1;
+		let lastId = 0;
 		while(!outOfIds){
 			const objectWithId = this.searchJSON(this.json.root, index);
-			if(objectWithId === null){ //Reahced the last ID
+			if(objectWithId === null){ //Reached the last ID
+				lastId = index-1;
 				outOfIds = true;
 			}
 			else{
 				const type = objectWithId.name;
-				const data = objectWithId.obj["@attributes"];
-				commands.push(new Command(type, data));
+				let data = objectWithId.obj["@attributes"];
+				commands.push(new Command(type, data, objectWithId.parent));
 				index++;				
 			}
 		}	
 		//Empty out the mathbox. 
 		this.mathbox.remove("*");
+
 		//Now for each command, apply it back onto the mathbox. 
-		for(let index = 1; index<commands.length; index++){ //The first is root, skip it. 
-			commands[index].execute(this.mathbox);
+		for(let index = 1; index<commands.length; index++){ //The first is root, skip it.
+			if(commands[index].type == "interval"){
+				console.log(commands[index].parameters);
+			}
+			commands[index].execute(this.mathbox, lastId);
+						if(commands[index].type == "interval"){
+				console.log(this.mathbox.toMarkup());
+			}
 		}
 		
 	}
@@ -46,11 +55,13 @@ export default class MathboxEditor{
 		if(json["@attributes"].id == id){
 			if(id == 1){
 				return {
+					"parent": null,
 					"name" : "root",
 					"obj": json
 				}
 			}
-			return {
+			return { //This is a child, so handle setting the parent from the parent. 
+				"parent": null,
 				"name" : null,
 				"obj": json
 			}
@@ -65,6 +76,7 @@ export default class MathboxEditor{
 						const possible = this.searchJSON(current, id);
 						if(possible != null){
 							return {
+								"parent": json["@attributes"].id,
 								"name": child,
 								"obj" : possible.obj
 							}
@@ -78,6 +90,7 @@ export default class MathboxEditor{
 							return possible;
 						}
 						return {
+							"parent": json["@attributes"]["id"],
 							"name": child,
 							"obj" : possible.obj
 						}	
@@ -91,7 +104,7 @@ export default class MathboxEditor{
 		let stringToParse = xml;
 		stringToParse = stringToParse.replace(/{/g, '"');
 		stringToParse = stringToParse.replace(/}/g, '"');
-		//Now go through and fix any function brackets that were replaced with ""
+		//Now go through and fix any function brackets that were replaced with "", and preset functions so that they can be built later (remove function and args)
 		let matchPositions = []
 		const regex = /function/g
 		let match = regex.exec(stringToParse);
@@ -101,14 +114,14 @@ export default class MathboxEditor{
 		}
 		const unFunctioned = stringToParse;
 		for(let index in matchPositions){
-			//Replace the first " with a {
-			let temp = unFunctioned.substr(matchPositions[index], stringToParse.length);
-			let badQuoteIndex = matchPositions[index] + temp.indexOf('"');
-			stringToParse = stringToParse.substr(0, badQuoteIndex) + "{" + stringToParse.substr(badQuoteIndex+1, stringToParse.length);
-			//Replace the next " with a } : assume we have no strings in our function
-			temp = unFunctioned.substr(badQuoteIndex + 1, unFunctioned.length);
-			badQuoteIndex = badQuoteIndex + temp.indexOf('"') + 1;
-			stringToParse = stringToParse.substr(0, badQuoteIndex) + "}" + stringToParse.substr(badQuoteIndex+1, stringToParse.length);
+			//Remove function, args, and extra quotes. 
+			const afterFunctionDeclaration = unFunctioned.substr(matchPositions[index], stringToParse.length);
+			const firstQuoteLocation = afterFunctionDeclaration.indexOf('"')
+			const functionDelcaration = afterFunctionDeclaration.substr(0, firstQuoteLocation);
+			const lastQuoteLocation = afterFunctionDeclaration.substr(firstQuoteLocation + 1, afterFunctionDeclaration.length).indexOf('"');
+			const functionBody = afterFunctionDeclaration.substr(firstQuoteLocation + 1, lastQuoteLocation);
+			const afterBody = '"' + stringToParse.substr(3 + matchPositions[index] + firstQuoteLocation + lastQuoteLocation, stringToParse.length);	
+			stringToParse = stringToParse.substr(0, matchPositions[index]) + functionBody + afterBody;
 		}
 		//Brackets are fixed! 
 		let parser = new DOMParser();

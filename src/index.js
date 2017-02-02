@@ -21,7 +21,7 @@ let view = mathbox.cartesian({
     ],
     scale: [2, 1],
 });
-mathbox
+view
     .axis({
         axis: 1,
         width: 10,
@@ -33,9 +33,7 @@ mathbox
         divideX: 20,
         divideY: 10,
     }).interval({
-  expr: function(emit, x, i, t){
-    emit(x, Math.sin(x));
-  },
+  expr: new Function("emit", "x", "i", "t", "emit(x, Math.sin(x))"),
   width: 64,
   channels: 2,
   }).line({
@@ -44,9 +42,5 @@ mathbox
   })
 //Setup the tree view.
 
-/*
 let test = new MathboxEditor(mathbox);
-test.addElement("interval", {expr: function(emit, x, i, t){emit(x, 1)}, width: 30, channels: 2})
-test.addElement("line", {width: 30, color: 'white'})
 test.refreshMathbox();
-*/
