@@ -51904,7 +51904,7 @@ exports.getThunk = function(data) {
 };
 
 exports.getStreamer = function(array, samples, channels, items) {
-  var consume, count, done, emit, i, j, limit, reset, skip;
+  var consume, count, done, emit, i, j, limit, num, reset, skip;
   limit = i = j = 0;
   reset = function() {
     limit = samples * channels * items;
@@ -51916,8 +51916,9 @@ exports.getStreamer = function(array, samples, channels, items) {
   done = function() {
     return limit - i <= 0;
   };
+  num = parseInt(channels, 10);
   skip = (function() {
-    switch (channels) {
+    switch (num) {
       case 1:
         return function(n) {
           i += n;
@@ -51941,7 +51942,7 @@ exports.getStreamer = function(array, samples, channels, items) {
     }
   })();
   consume = (function() {
-    switch (channels) {
+    switch (num) {
       case 1:
         return function(emit) {
           emit(array[i++]);
@@ -51965,7 +51966,7 @@ exports.getStreamer = function(array, samples, channels, items) {
     }
   })();
   emit = (function() {
-    switch (channels) {
+    switch (num) {
       case 1:
         return function(x) {
           array[i++] = x;
@@ -53827,7 +53828,7 @@ THREE.Bootstrap.registerPlugin('mathbox', {
   defaults: {
     init: true,
     warmup: 2,
-    inspect: true,
+    inspect: false,
     splash: true
   },
   listen: ['ready', 'pre', 'update', 'post', 'resize'],
@@ -72958,7 +72959,7 @@ exports.getThunk = function(data) {
 };
 
 exports.getStreamer = function(array, samples, channels, items) {
-  var consume, count, done, emit, i, j, limit, reset, skip;
+  var consume, count, done, emit, i, j, limit, num, reset, skip;
   limit = i = j = 0;
   reset = function() {
     limit = samples * channels * items;
@@ -72970,8 +72971,9 @@ exports.getStreamer = function(array, samples, channels, items) {
   done = function() {
     return limit - i <= 0;
   };
+  num = parseInt(channels, 10);
   skip = (function() {
-    switch (channels) {
+    switch (num) {
       case 1:
         return function(n) {
           i += n;
@@ -72995,7 +72997,7 @@ exports.getStreamer = function(array, samples, channels, items) {
     }
   })();
   consume = (function() {
-    switch (channels) {
+    switch (num) {
       case 1:
         return function(emit) {
           emit(array[i++]);
@@ -73019,7 +73021,7 @@ exports.getStreamer = function(array, samples, channels, items) {
     }
   })();
   emit = (function() {
-    switch (channels) {
+    switch (num) {
       case 1:
         return function(x) {
           array[i++] = x;

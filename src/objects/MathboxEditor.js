@@ -4,22 +4,19 @@ export default class MathboxEditor{
 		this.mathbox = mathbox;
 		this.element = element;
 		this.json = this.getJSON();
-	}
-	addElement(type, data){
-		this.mathbox[type](data);
-		this.refreshMathbox();
+		this.idOffset = 0;
 	}
 	refreshMathbox(){
+		//this.mathbox.three.Loop.stop();
 		//First, we generate a list of addElement commands from our json.
 		let commands = []
 		//You want to add the elements in order. Do that with their IDs	
 		let outOfIds = false;
 		let index = 1;
-		let lastId = 0;
 		while(!outOfIds){
 			const objectWithId = this.searchJSON(this.json.root, index);
 			if(objectWithId === null){ //Reached the last ID
-				lastId = index-1;
+				this.idOffset += index-1;
 				outOfIds = true;
 			}
 			else{
@@ -29,20 +26,21 @@ export default class MathboxEditor{
 				index++;				
 			}
 		}	
-		//Empty out the mathbox. 
-		this.mathbox.remove("*");
-
+		//Empty out the mathbox.
+		this.mathbox = null
+		window.three.uninstall();
+		this.mathbox = mathBox({
+			width: 10,
+			element: document.getElementById("slide-display")
+		});
+		if (this.mathbox.fallback) throw "WebGL not supported";
+		this.mathbox.set("id", "1");
 		//Now for each command, apply it back onto the mathbox. 
 		for(let index = 1; index<commands.length; index++){ //The first is root, skip it.
-			if(commands[index].type == "interval"){
-				console.log(commands[index].parameters);
-			}
-			commands[index].execute(this.mathbox, lastId);
-						if(commands[index].type == "interval"){
-				console.log(this.mathbox.toMarkup());
-			}
+			commands[index].execute(this.mathbox, this.idOffset);
 		}
-		
+		window.three.Loop.start();
+		console.log(this.mathbox);		
 	}
 	searchJSON(json = this.json.root, id = 1){ //Searches a json element for something with id: id
 		//Check this element
