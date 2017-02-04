@@ -1,36 +1,16 @@
 import Command from './command.js'
-export default class MathboxEditor{
-	constructor(mathbox, element){
-		this.mathbox = mathbox;
+export default class SlideEditor{
+	constructor(slide, element){
+		this.slide = slide;
 		this.element = element;
-		this.json = this.getJSON();
-		this.idOffset = 0;
 	}
 	refreshMathbox(){
 		//First, we generate a list of addElement commands from our json.
 		let commands = []
-		//You want to add the elements in order. Do that with their IDs	
-		let outOfIds = false;
-		let index = 1;
-		while(!outOfIds){
-			const objectWithId = this.searchJSON(this.json.root, index);
-			if(objectWithId === null){ //Reached the last ID
-				this.idOffset += index;
-				outOfIds = true;
-			}
-			else{
-				const type = objectWithId.name;
-				let data = objectWithId.obj["@attributes"];
-				commands.push(new Command(type, data, objectWithId.parent));
-				index++;			
-			}
-		}
 		//Now for each command, apply it back onto the mathbox. 
 		for(let index = 1; index<commands.length; index++){ //The first is root, skip it.
-			commands[index].execute(this.mathbox);
+			commands[index].execute(this.slide);
 		}
-		console.log(this.mathbox);
-		console.log(this.mathbox.toMarkup());
 	}
 	searchJSON(json = this.json.root, id = 1){ //Searches a json element for something with id: id
 		//Check this element
@@ -88,7 +68,7 @@ export default class MathboxEditor{
 		}
 		return null;
 	}
-	getJSON(xml = this.mathbox.toMarkup()){
+	getJSON(xml = this.slide.toMarkup()){
 		let stringToParse = xml;
 		stringToParse = stringToParse.replace(/{/g, '"');
 		stringToParse = stringToParse.replace(/}/g, '"');

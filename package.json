@@ -12,6 +12,8 @@
     "babel-preset-es2015": "latest",
     "file-loader": "latest",
     "jquery": "latest",
+    "react": "^15.4.2",
+    "react-dom": "^15.4.2",
     "resolve-url": "latest",
     "sat": "^0.5.0",
     "url-loader": "latest",
@@ -20,6 +22,7 @@
   },
   "devDependencies": {
     "babel-core": "^6.22.1",
+    "babel-preset-react": "^6.22.0",
     "chai": "^3.5.0",
     "mocha": "^3.0.2"
   }

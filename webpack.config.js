@@ -23,7 +23,6 @@ module.exports = {
 		path: dir_build,
 		filename: 'bundle.js'
 	},
-	externals: nodeModules,
 	resolve: {
 		modulesDirectories: ['node_modules', dir_js],
 	},
@@ -35,8 +34,13 @@ module.exports = {
 		chunkModules: false
 	},
 	plugins: [
-        new webpack.NoErrorsPlugin()
-    ],
+		new webpack.NoErrorsPlugin(),
+		new webpack.DefinePlugin({
+			"process.env": {
+				NODE_ENV: JSON.stringify("development")
+			}
+		})
+	],
 
 	module: {
 		loaders: [
@@ -44,14 +48,14 @@ module.exports = {
 				loader: 'babel-loader',
 				test: /\.js$/,
 				include: [
-                  path.resolve(__dirname, "src")
-                ],
-				presets: ['es2015']
-            },
+					path.resolve(__dirname, "src"), 
+				],
+				presets: ['es2015', "react"]
+			},
 			{
 				loader: 'file?name=/[name].html',
 				test: /\.html$/
-            }
-        ]
+			}
+		]
 	}
 };

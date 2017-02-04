@@ -1,5 +1,8 @@
+
+/*
 import Slide from './objects/slide.js'
 import Command from './objects/command.js'
+import SlideEditor from './objects/slideEditor.js'
 var mathbox = mathBox({
 		width: 10,
 		element: document.getElementById("slide-display")
@@ -9,33 +12,28 @@ var three = mathbox.three;
 window.three = three;
  three.renderer.setClearColor(new THREE.Color(0xFFFFFF), 1.0);
 
-if (window == top)
-  window.onkeydown = function (e) {
+window.onkeydown = function (e) {
 	switch (e.keyCode) {
-	  case 37:
-	  case 38:
+		case 37:
+		case 38:
 		present.set('index', present.get('index') - 1);
 		break;
-	  case 39:
-	  case 40:
+		case 39:
+		case 40:
 		present.set('index', present.get('index') + 1);
 		break;
 	}
-	//console.log(present.get('index'));
-  }
+}
 
-setInterval(function () {
-  present.set('index', (present.get('index') + 1) % (present.get('length') + 1));
-}, 2000);
 
 var view = mathbox.cartesian({
-  range: [[-1, 1], [-1, 1], [-1, 1]],
-  scale: [1, 1, 1],
+  range: [[-3, 3], [-1, 1], [-1, 1]],
+  scale: [3, 1, 1],
 })
 
 var present =
 view.present({
-  index: 1
+  index: 2
 })
 
 var camera = view.camera({
@@ -45,7 +43,7 @@ var camera = view.camera({
 });
 let s = new Slide([
 	new Command("grid", {
-		axes: [1, 3],
+		axes: [1, 2],
 		width: 2,
 		color: 0x2fff90,
 		depth: .5
@@ -53,13 +51,24 @@ let s = new Slide([
 	new Command("interval", {
 		width: 64,
 		channels: 2,
-		expr: "emit(x, Math.sin(x + t))"
+		expr: ["x, Math.sin(x + t)", "x, Math.cos(x + t)"]
 	}),
 	new Command("line", {
 		width: 50,
-		color: "blue"
+		color: "red"
 	})
 ])
 s.play(mathbox);
 
-console.log(mathbox.toMarkup());
+let test = new SlideEditor(s)
+window.slideEdit = test;
+slideEdit.refreshMathbox();
+*/
+
+import React from 'react';
+import ReactDOM from 'react-dom';
+
+ReactDOM.render(
+  <h1>Hello, world!</h1>,
+  document.getElementById('content')
+);
