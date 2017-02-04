@@ -55229,6 +55229,11 @@ Node = (function() {
     }
   };
 
+  Node.resetId = function() {
+    nodeIndex = 1;
+    return this._id = 1;
+  };
+
   Node.prototype.toMarkup = function(selector, indent) {
     var attr, child, children, close, expr, k, open, orig, props, recurse, ref, ref1, ref2, ref3, tag, v;
     if (selector == null) {
@@ -71922,9 +71927,11 @@ module.exports = Animator;
 
 
 },{"../util":175}],167:[function(require,module,exports){
-var API, Util;
+var API, Node, Util;
 
 Util = require('../util');
+
+Node = require('../model/node.coffee');
 
 API = (function() {
   API.prototype.v2 = function() {
@@ -72019,6 +72026,14 @@ API = (function() {
       nodes.push(node);
     }
     return this._push(nodes);
+  };
+
+  API.prototype.removeAll = function() {
+  	this.remove("*");
+    this._context.model._ids = {};
+    this._targets[0].children = [];
+    this._context.model.nodes = [];
+    return Node.resetId();
   };
 
   API.prototype.remove = function(selector) {
@@ -72261,7 +72276,7 @@ module.exports = API;
 
 
 
-},{"../util":175}],168:[function(require,module,exports){
+},{"../model/node.coffee":36,"../util":175}],168:[function(require,module,exports){
 var Controller, Util;
 
 Util = require('../util');

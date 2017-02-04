@@ -1,5 +1,5 @@
 Util = require '../util'
-
+Node = require '../model/node.coffee'
 class API
   v2: () -> @
 
@@ -58,7 +58,12 @@ class API
 
     # Return changed selection
     @_push nodes
-
+  removeAll: () -> #Note to Jack: Use this when clearing - it'll reset ids. 
+    @_context.model._ids = {}
+    @_targets[0].children = [];
+    @_context.model.ids = [];
+    @_context.model.nodes = [];
+    Node.resetId();
   remove: (selector) ->
     return @select(selector).remove() if selector
     @_context.controller.remove target for target in @_targets.slice().reverse()

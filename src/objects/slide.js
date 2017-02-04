@@ -1,16 +1,14 @@
 export default class Slide{
-  constructor(onPlay, onTransition){ //Where onPlay and onTransition are arrays of commands.
-    this.play = onPlay;
-    this.transition = onTransition;
+  constructor(onPlay){ //Where onPlay and onTransition are arrays of commands.
+    this.commands = onPlay;
   }
   play(mathbox){
-  	for(command in this.play){
-  		command.execute(mathbox);
-  	}
-  }
-  transition(mathbox){
-  	for(command in this.transition){
-  		command.execute(mathbox);
+    let present = mathbox.select("present");
+    let slide = present.slide().reveal({
+      duration : 2
+    }).end().slide().reveal()
+  	for(let index in this.commands){
+  		this.commands[index].execute(slide);
   	}
   }
 }

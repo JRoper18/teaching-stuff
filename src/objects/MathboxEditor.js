@@ -7,7 +7,6 @@ export default class MathboxEditor{
 		this.idOffset = 0;
 	}
 	refreshMathbox(){
-		//this.mathbox.three.Loop.stop();
 		//First, we generate a list of addElement commands from our json.
 		let commands = []
 		//You want to add the elements in order. Do that with their IDs	
@@ -16,31 +15,22 @@ export default class MathboxEditor{
 		while(!outOfIds){
 			const objectWithId = this.searchJSON(this.json.root, index);
 			if(objectWithId === null){ //Reached the last ID
-				this.idOffset += index-1;
+				this.idOffset += index;
 				outOfIds = true;
 			}
 			else{
 				const type = objectWithId.name;
 				let data = objectWithId.obj["@attributes"];
 				commands.push(new Command(type, data, objectWithId.parent));
-				index++;				
+				index++;			
 			}
-		}	
-		//Empty out the mathbox.
-		this.mathbox = null
-		window.three.uninstall();
-		this.mathbox = mathBox({
-			width: 10,
-			element: document.getElementById("slide-display")
-		});
-		if (this.mathbox.fallback) throw "WebGL not supported";
-		this.mathbox.set("id", "1");
+		}
 		//Now for each command, apply it back onto the mathbox. 
 		for(let index = 1; index<commands.length; index++){ //The first is root, skip it.
-			commands[index].execute(this.mathbox, this.idOffset);
+			commands[index].execute(this.mathbox);
 		}
-		window.three.Loop.start();
-		console.log(this.mathbox);		
+		console.log(this.mathbox);
+		console.log(this.mathbox.toMarkup());
 	}
 	searchJSON(json = this.json.root, id = 1){ //Searches a json element for something with id: id
 		//Check this element

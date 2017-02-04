@@ -6,13 +6,11 @@ export default class Command{
 		if(this.parameters.expr){ //Parse functions as acutal functions, not just strings
 			//SHUT UP! I know it's super dangerous. But how else am I going to run user-generated code?
 			//Side note: How does jsFiddle do it? Maybe I can look at their source code...
-			this.parameters.expr = new Function("emit", "x", "i", "t", "emit(x, Math.sin(x))");
+			this.parameters.expr = new Function("emit", "x", "i", "t", this.parameters.expr);
 		}
 	}
 	execute(mathbox, idOffset = 0){
-		const idToAddTo = (parseInt(this.id) + idOffset).toString();
-		let toAdd = mathbox.select("#" + idToAddTo);
-		console.log(toAdd.toMarkup());
+		let toAdd = mathbox;
 		let added = toAdd[this.type](this.parameters);
 		if(this.type == "interval"){
 			added.set("width", 64);

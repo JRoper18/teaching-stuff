@@ -99,7 +99,9 @@ class Node
         "<#{id}></#{tag}>"
     else
       "<#{id} />"
-
+  @resetId: () -> 
+    nodeIndex = 1;
+    @_id = 1;
   toMarkup: (selector = null, indent = '') ->
     if selector and typeof selector != 'function'
       selector = @root?.model._matcher(selector) ? () -> true
