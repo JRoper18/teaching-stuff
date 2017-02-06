@@ -1,5 +1,5 @@
 export default class Command{
-	constructor(type, parameters, id){
+	constructor(type, parameters, id = 0){
 		this.type = type;
 		this.parameters = parameters;
 		this.id = id;
@@ -17,7 +17,7 @@ export default class Command{
 
 	}
 	execute(mathbox){
-		let toAdd = mathbox;
+		let toAdd = (this.id == 0)? mathbox : mathbox.select("#" + this.id);
 		let added = toAdd[this.type](this.parameters);
 	}
 }

@@ -14,5 +14,6 @@
   ],
   "dependencies": {
     "mathbox": "^0.0.5",
+    "jsoneditor": "^5.5.11"
   }
 }

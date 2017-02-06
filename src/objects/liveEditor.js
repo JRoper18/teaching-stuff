@@ -1,16 +1,80 @@
+import Slide from './slide.js'
 import Command from './command.js'
-export default class SlideEditor{
-	constructor(slide, element){
-		this.slide = slide;
-		this.element = element;
-	}
-	refreshMathbox(){
-		//First, we generate a list of addElement commands from our json.
-		let commands = []
-		//Now for each command, apply it back onto the mathbox. 
-		for(let index = 1; index<commands.length; index++){ //The first is root, skip it.
-			commands[index].execute(this.slide);
+export default class LiveEditor {
+	constructor(element, mathbox){
+		const schema = {
+			title: "Element Schema",
+			type: "object",
+			properties: {
+
+			}
 		}
+		this.mathbox = mathbox;
+		let self = this;
+		const options = {
+			onChange: function(){
+				//Find the differences between the last json and the new one. 
+				let commands = (self.getJSONDiff(self.lastJSON, self.editor.get().present));
+				console.log(commands);
+				for(let index in commands){
+					commands[index].execute(self.mathbox)
+				}
+				console.log(mathbox.toMarkup());
+			}
+		}
+		this.editor = new JSONEditor(element,options, this.getJSON(mathbox.select("present").toMarkup()));
+		this.lastJSON = JSON.parse(JSON.stringify(this.editor.get().present));
+
+	}
+	getJSONDiff(before, after, parentElement = null){
+	
+		let commands = []
+		if(before == after){ //If they're equal
+			console.log("MATHAFACKA")		
+		}
+		else if(before.constructor == Array && after.constructor == Array){
+			for(let i = 0; i<Math.max(before.length, after.length); i++){
+				if(after[i] === undefined){ //We must've removed something. 
+					commands.push(new Command("remove", "*", parentElement["@attributes"].id));
+				}
+				else if(before[i] === undefined){
+					commands.push(new Command(after.constructor.name, after[i]["@attributes"], parentElement["@attributes"].id))
+				}
+				else{
+					commands.concat(this.getJSONDiff(before[i], after[i]));
+				}
+			}
+		}
+		else if(before.constructor == Array){ //Before is an array but after isn't. Something was removed. 
+			for(let i = 1; i<before.length; i++){
+				commands.push(new Command("remove", before[i]["@attributes"].id));
+			}
+		}
+		else if(after.constructor == Array){ //After is an array but before isn't. Something was added. 
+			for(let i = 1; i<after.length; i++){
+				commands.push(new Command(parentElement.constructor.name, after[i]["@attributes"], parentElement["@attributes"].id));
+			}
+		}
+		else { //Neither before or after are arrays. Compare their values
+			const beforeAttributes = before["@attributes"];
+			const afterAttributes = after["@attributes"];
+			let propertiesToChange = {};
+			if(beforeAttributes !== undefined && afterAttributes != undefined){
+				for(let property in afterAttributes){
+					if (afterAttributes.hasOwnProperty(property) && afterAttributes[property] != beforeAttributes[property]) {
+						propertiesToChange[property] = afterAttributes[property]
+					}		
+				}
+				commands.push(new Command("set", propertiesToChange, beforeAttributes.id));
+			}
+			for(let child in after){
+				if(after.hasOwnProperty(child) && child != "@attributes"){
+					const newCommands = this.getJSONDiff(after[child], before[child], after)
+					commands.concat(newCommands);
+				}
+			}
+		}
+		return commands;
 	}
 	searchJSON(json = this.json.root, id = 1){ //Searches a json element for something with id: id
 		//Check this element
@@ -68,7 +132,7 @@ export default class SlideEditor{
 		}
 		return null;
 	}
-	getJSON(xml = this.slide.toMarkup()){
+	getJSON(xml){
 		let stringToParse = xml;
 		stringToParse = stringToParse.replace(/{/g, '"');
 		stringToParse = stringToParse.replace(/}/g, '"');
@@ -131,6 +195,8 @@ export default class SlideEditor{
 				}
 			}
 		}
+		delete obj["#text"];
 		return obj;
 	}
+	
 }

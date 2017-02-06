@@ -1,30 +1,16 @@
-
-/*
 import Slide from './objects/slide.js'
 import Command from './objects/command.js'
-import SlideEditor from './objects/slideEditor.js'
+import LiveEditor from './objects/liveEditor.js'
+
 var mathbox = mathBox({
-		width: 10,
-		element: document.getElementById("slide-display")
+	width: 10,
+	element: document.getElementById("slide-display")
 });
 if (mathbox.fallback) throw "WebGL not supported";
 var three = mathbox.three;
+window.mathbox = mathbox;
 window.three = three;
- three.renderer.setClearColor(new THREE.Color(0xFFFFFF), 1.0);
-
-window.onkeydown = function (e) {
-	switch (e.keyCode) {
-		case 37:
-		case 38:
-		present.set('index', present.get('index') - 1);
-		break;
-		case 39:
-		case 40:
-		present.set('index', present.get('index') + 1);
-		break;
-	}
-}
-
+three.renderer.setClearColor(new THREE.Color(0xFFFFFF), 1.0);
 
 var view = mathbox.cartesian({
   range: [[-3, 3], [-1, 1], [-1, 1]],
@@ -35,7 +21,6 @@ var present =
 view.present({
   index: 2
 })
-
 var camera = view.camera({
   lookAt: [0, 0, 0],
 }, {
@@ -53,6 +38,7 @@ let s = new Slide([
 		channels: 2,
 		expr: ["x, Math.sin(x + t)", "x, Math.cos(x + t)"]
 	}),
+
 	new Command("line", {
 		width: 50,
 		color: "red"
@@ -60,15 +46,4 @@ let s = new Slide([
 ])
 s.play(mathbox);
 
-let test = new SlideEditor(s)
-window.slideEdit = test;
-slideEdit.refreshMathbox();
-*/
-
-import React from 'react';
-import ReactDOM from 'react-dom';
-
-ReactDOM.render(
-  <h1>Hello, world!</h1>,
-  document.getElementById('content')
-);
+let editor = new LiveEditor(document.getElementById("tree-view"), mathbox);
