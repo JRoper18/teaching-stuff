@@ -1,9 +1,8 @@
 <html>
 	<head>
 		<title></title>
-		<link rel="stylesheet" type="text/css" href="./bower_components/jsoneditor/dist/jsoneditor.css" />
 		<style>
-		#content > div {
+		#content > * {
 			position: fixed;
 		}
 		</style>
@@ -12,13 +11,13 @@
 		<div id="content" style="width:100vw;height:100vh;position:fixed;">
 			<div id="slide-display" style="width:55vw;height:100vh;">
 			</div>
-			<div id="tree-view" style="width:40vw;height:100vh;left:60vw;">
+			<div id="tree-view" style="width:40vw;height:100vh;left:60vw;overflow:auto;">
 			</div>
+			<button id="update-btn">Update</button>
 		</div>
-		<script src="./polyfill.min.js"></script>
-		<script src="./jquery-3.0.0.min.js"></script>
+		<link rel="stylesheet" href="./bootstrap.css">
+		<script src="./jsoneditor.min.js"></script>
 		<script src="./bower_components/mathbox/build/mathbox-bundle.js"></script>
-		<script src="./bower_components/jsoneditor/dist/jsoneditor.min.js"></script>
 		<script src="./bundle.js"></script>
 	</body>
 </html>

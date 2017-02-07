@@ -3,30 +3,32 @@ import Command from './command.js'
 export default class LiveEditor {
 	constructor(element, mathbox){
 		const schema = {
-			title: "Element Schema",
+			title: "Presentation",
 			type: "object",
 			properties: {
-
+				slide: {
+					type: "array",
+					
+				}
 			}
 		}
 		this.mathbox = mathbox;
-		let self = this;
 		const options = {
-			onChange: function(){
-				//Find the differences between the last json and the new one. 
-				let commands = (self.getJSONDiff(self.lastJSON, self.editor.get().present));
-				console.log(commands);
-				for(let index in commands){
-					commands[index].execute(self.mathbox)
-				}
-				self.lastJSON = self.editor.get().present
-			}
+			schema: schema
 		}
-		this.editor = new JSONEditor(element,options, this.getJSON(mathbox.select("present").toMarkup()));
-		this.lastJSON = JSON.parse(JSON.stringify(this.editor.get().present));
+		this.editor = new JSONEditor(element, options);
+		this.editor.setValue(this.getJSON(this.mathbox.select("present").toMarkup()));
+		this.lastJSON = (this.editor.getValue().present);
+	}
+	update(){
+		//Find the differences between the last json and the new one. 
+		let commands = (this.getJSONDiff(this.lastJSON, this.editor.getValue().present));
+		for(let index in commands){
+			commands[index].execute(this.mathbox)
+		}
+		this.lastJSON = this.editor.getValue().present
 	}
 	getJSONDiff(before, after, parentElement = null){
-	
 		let commands = []
 		if(before == after){
 			//Nothing! 

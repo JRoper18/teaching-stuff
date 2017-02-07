@@ -1,7 +1,7 @@
 import Slide from './objects/slide.js'
 import Command from './objects/command.js'
 import LiveEditor from './objects/liveEditor.js'
-
+JSONEditor.defaults.options.theme = 'bootstrap2';
 var mathbox = mathBox({
 	width: 10,
 	element: document.getElementById("slide-display")
@@ -41,3 +41,6 @@ let s = new Slide([
 ])
 s.play(mathbox);
 let editor = new LiveEditor(document.getElementById("tree-view"), mathbox);
+document.getElementById("update-btn").onclick = function(){
+	editor.update();
+}
