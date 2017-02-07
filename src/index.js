@@ -24,7 +24,7 @@ view.present({
 var camera = view.camera({
   lookAt: [0, 0, 0],
 }, {
-  position: function (t) { return [-3, 3, -3] },
+  position: function (t) { return [0, 0, -3] },
 });
 let s = new Slide([
 	new Command("grid", {
@@ -36,14 +36,8 @@ let s = new Slide([
 	new Command("interval", {
 		width: 64,
 		channels: 2,
-		expr: ["x, Math.sin(x + t)", "x, Math.cos(x + t)"]
-	}),
-
-	new Command("line", {
-		width: 50,
-		color: "red"
+		expr: ["x, Math.sin(x + t)"]
 	})
 ])
 s.play(mathbox);
-
 let editor = new LiveEditor(document.getElementById("tree-view"), mathbox);

@@ -19,29 +19,29 @@ export default class LiveEditor {
 				for(let index in commands){
 					commands[index].execute(self.mathbox)
 				}
-				console.log(mathbox.toMarkup());
+				self.lastJSON = self.editor.get().present
 			}
 		}
 		this.editor = new JSONEditor(element,options, this.getJSON(mathbox.select("present").toMarkup()));
 		this.lastJSON = JSON.parse(JSON.stringify(this.editor.get().present));
-
 	}
 	getJSONDiff(before, after, parentElement = null){
 	
 		let commands = []
-		if(before == after){ //If they're equal
-			console.log("MATHAFACKA")		
+		if(before == after){
+			//Nothing! 
 		}
-		else if(before.constructor == Array && after.constructor == Array){
+		else if(before.constructor == Array || after.constructor == Array){
 			for(let i = 0; i<Math.max(before.length, after.length); i++){
 				if(after[i] === undefined){ //We must've removed something. 
 					commands.push(new Command("remove", "*", parentElement["@attributes"].id));
 				}
-				else if(before[i] === undefined){
+				else if(before[i] === undefined){ //Added something
 					commands.push(new Command(after.constructor.name, after[i]["@attributes"], parentElement["@attributes"].id))
 				}
 				else{
-					commands.concat(this.getJSONDiff(before[i], after[i]));
+					const newCommands = this.getJSONDiff(before[i], after[i]);
+					commands = commands.concat(newCommands);
 				}
 			}
 		}
@@ -65,12 +65,14 @@ export default class LiveEditor {
 						propertiesToChange[property] = afterAttributes[property]
 					}		
 				}
-				commands.push(new Command("set", propertiesToChange, beforeAttributes.id));
+				if(JSON.stringify(propertiesToChange) != "{}"){
+					commands.push(new Command("set", propertiesToChange, beforeAttributes.id));
+				}
 			}
 			for(let child in after){
 				if(after.hasOwnProperty(child) && child != "@attributes"){
 					const newCommands = this.getJSONDiff(after[child], before[child], after)
-					commands.concat(newCommands);
+					commands = commands.concat(newCommands);
 				}
 			}
 		}
