@@ -3,30 +3,56 @@ import Command from './command.js'
 export default class LiveEditor {
 	constructor(element, mathbox){
 		const schema = {
+			definitions: {
+				attr_width: {
+					type: "integer",
+					minimum: 0,
+					exclusiveMinimum: true
+				},
+				attr_color: {
+					type: "string",
+					format: "color"
+				},
+				line_attr: {
+					type: "object",
+					properties: {
+						color: { $ref: "#/definitions/attr_color"},
+						width: { $ref: "#/definitions/attr_width"}
+					}
+				},
+				line: {
+					type: "object",
+					properties: {
+						"@	attributes": { $ref: "#/definitions/line_attr" }
+					},
+					defaultProperties: []
+				}
+			},
 			title: "Presentation",
 			type: "object",
 			properties: {
-				slide: {
-					type: "array",
-					
+				line: {
+					$ref: "#/definitions/line"
 				}
-			}
+
+			},
+			defaultProperties: []
 		}
 		this.mathbox = mathbox;
 		const options = {
 			schema: schema
 		}
 		this.editor = new JSONEditor(element, options);
-		this.editor.setValue(this.getJSON(this.mathbox.select("present").toMarkup()));
-		this.lastJSON = (this.editor.getValue().present);
+		this.editor.setValue(this.getJSON(this.mathbox.select("line").toMarkup()));
+		this.lastJSON = (this.editor.getValue());
 	}
 	update(){
 		//Find the differences between the last json and the new one. 
-		let commands = (this.getJSONDiff(this.lastJSON, this.editor.getValue().present));
+		let commands = (this.getJSONDiff(this.lastJSON, this.editor.getValue()));
 		for(let index in commands){
 			commands[index].execute(this.mathbox)
 		}
-		this.lastJSON = this.editor.getValue().present
+		this.lastJSON = this.editor.getValue()
 	}
 	getJSONDiff(before, after, parentElement = null){
 		let commands = []
@@ -73,7 +99,7 @@ export default class LiveEditor {
 			}
 			for(let child in after){
 				if(after.hasOwnProperty(child) && child != "@attributes"){
-					const newCommands = this.getJSONDiff(after[child], before[child], after)
+					const newCommands = this.getJSONDiff(before[child], after[child], after)
 					commands = commands.concat(newCommands);
 				}
 			}

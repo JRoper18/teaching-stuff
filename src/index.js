@@ -37,10 +37,42 @@ let s = new Slide([
 		width: 64,
 		channels: 2,
 		expr: ["x, Math.sin(x + t)"]
+	}),
+	new Command("line", {
+		width: 50,
+		color: "red"
 	})
 ])
 s.play(mathbox);
+var raycaster = new THREE.Raycaster();
+var mouse = new THREE.Vector2();
+setTimeout(function(){
+	three.Loop.stop();
+}, 200)
+function click(){
+	raycaster.setFromCamera( mouse, three.camera );
+	console.log(three.scene);
+	// calculate objects intersecting the picking ray
+	var intersects = raycaster.intersectObjects( three.scene.children[0].children );
+	console.log(intersects);
+	for ( var i = 0; i < intersects.length; i++ ) {
+
+		intersects[ i ].object.material.color.set( 0xff0000 );
+	}
+}
+function onMouseMove( event ) {
+
+	// calculate mouse position in normalized device coordinates
+	// (-1 to +1) for both components
+
+	mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+	mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+
+}
 let editor = new LiveEditor(document.getElementById("tree-view"), mathbox);
 document.getElementById("update-btn").onclick = function(){
 	editor.update();
 }
+window.addEventListener( 'mousemove', onMouseMove, false );
+document.getElementById("slide-display").addEventListener( 'click', click, false );
+
