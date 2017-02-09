@@ -4,7 +4,7 @@ export default class LiveEditor {
 	constructor(element, mathbox){
 		const schema = {
 			definitions: {
-				attr_width: {
+				positive_int: {
 					type: "integer",
 					minimum: 0,
 					exclusiveMinimum: true
@@ -13,27 +13,59 @@ export default class LiveEditor {
 					type: "string",
 					format: "color"
 				},
+				attr_axis2: {
+					type: "array",
+					minItems: 2,
+					maxItems: 2,
+					uniqueItems: true,
+					items: {
+						type: "integer",
+						minimum: 1,
+						exclusiveMinimum: false,
+						maximum: 3
+					}
+				},
+				attr_expr: { //Work on a better way of representing this later
+					type: "array",
+					minItems: 1,
+					items: {
+						type: "string"
+					}
+				},
 				line_attr: {
 					type: "object",
 					properties: {
 						color: { $ref: "#/definitions/attr_color"},
-						width: { $ref: "#/definitions/attr_width"}
+						width: { $ref: "#/definitions/positive_int"}
+					}
+				},
+				grid_attr: {
+					type: "object",
+					properties: {
+						color: { $ref: "#/definitions/attr_color"},
+						width: { $ref: "#/definitions/positive_int"},
+						axes: { $ref: "#/definitions/attr_axis2"},
+						depth: { $ref: "#/definitions/positive_int"}
 					}
 				},
 				line: {
 					type: "object",
 					properties: {
-						"@	attributes": { $ref: "#/definitions/line_attr" }
+						"@attributes": { $ref: "#/definitions/line_attr" }
 					},
 					defaultProperties: []
+				},
+
+				slide: {
+					type: "object",
+					properties: {
+						grid: {}
+					}
 				}
 			},
 			title: "Presentation",
 			type: "object",
 			properties: {
-				line: {
-					$ref: "#/definitions/line"
-				}
 
 			},
 			defaultProperties: []
@@ -43,7 +75,7 @@ export default class LiveEditor {
 			schema: schema
 		}
 		this.editor = new JSONEditor(element, options);
-		this.editor.setValue(this.getJSON(this.mathbox.select("line").toMarkup()));
+		this.editor.setValue(this.getJSON(this.mathbox.select("#7").toMarkup()));
 		this.lastJSON = (this.editor.getValue());
 	}
 	update(){

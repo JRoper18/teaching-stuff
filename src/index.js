@@ -56,7 +56,6 @@ function click(){
 	var intersects = raycaster.intersectObjects( three.scene.children[0].children );
 	console.log(intersects);
 	for ( var i = 0; i < intersects.length; i++ ) {
-
 		intersects[ i ].object.material.color.set( 0xff0000 );
 	}
 }
