@@ -23,9 +23,6 @@ module.exports = {
 		path: dir_build,
 		filename: 'bundle.js'
 	},
-	resolve: {
-		modulesDirectories: ['node_modules', dir_js],
-	},
 	devServer: {
 		contentBase: dir_build,
 	},
@@ -35,11 +32,6 @@ module.exports = {
 	},
 	plugins: [
 		new webpack.NoErrorsPlugin(),
-		new webpack.DefinePlugin({
-			"process.env": {
-				NODE_ENV: JSON.stringify("development")
-			}
-		})
 	],
 
 	module: {
@@ -50,7 +42,6 @@ module.exports = {
 				include: [
 					path.resolve(__dirname, "src"), 
 				],
-				presets: ['es2015', "react"]
 			},
 			{
 				loader: 'file?name=/[name].html',

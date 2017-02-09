@@ -8805,18 +8805,16 @@ THREE.BufferGeometry.prototype = {
 	}(),
 
 	computeBoundingSphere: function () {
-
 		var box = new THREE.Box3();
 		var vector = new THREE.Vector3();
 
 		return function () {
-
 			if ( this.boundingSphere === null ) {
 
 				this.boundingSphere = new THREE.Sphere();
 
 			}
-
+			this.attributes.position = JSON.parse(JSON.stringify(this.attributes.position4)); //NOTE TO JACK: It's saving the positions in position4. Maybe a bug caused by using an outdated version. 
 			var positions = this.attributes.position.array;
 
 			if ( positions ) {
@@ -15385,7 +15383,6 @@ THREE.Mesh.prototype.raycast = ( function () {
 	return function ( raycaster, intersects ) {
 
 		var geometry = this.geometry;
-
 		// Checking boundingSphere distance to ray
 
 		if ( geometry.boundingSphere === null ) geometry.computeBoundingSphere();
